@@ -32,10 +32,19 @@ class CustomTableViewCell: UITableViewCell {
         self.lblModelName.text = car.make + " " + car.modelName
         self.lblFuelType.text = Supporter.sharedInstance.getFuelType(letter: car.fuelType) + ", " + "Transmission: " + Supporter.sharedInstance.getTransmission(letter: car.transmission)
         
-        if let url = NSURL(string: Supporter.sharedInstance.getImageUrlForCarSpecifications(modelIdentifier: car.modelIdentifier, color: car.color)) {
-            if let data = NSData(contentsOf: url as URL) {
-                self.imgCar.image = UIImage(data: data as Data)
-            }        
+//        if let url = NSURL(string: Supporter.sharedInstance.getImageUrlForCarSpecifications(modelIdentifier: car.modelIdentifier, color: car.color)) {
+//            if let data = NSData(contentsOf: url as URL) {
+//                self.imgCar.image = UIImage(data: data as Data)
+//            }        
+//        } else {
+//            self.imgCar.image = UIImage(named: "defaultImage")
+//        }
+        
+        do {
+            let imgData = try NSData(contentsOf: NSURL(string: Supporter.sharedInstance.getImageUrlForCarSpecifications(modelIdentifier: car.modelIdentifier, color: car.color))! as URL, options: NSData.ReadingOptions())
+            self.imgCar.image = UIImage(data: imgData as Data)
+        } catch {
+            self.imgCar.image = UIImage(named: "defaultImage")
         }
     }
 }
