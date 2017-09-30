@@ -7,10 +7,10 @@
 //
 
 import UIKit
-import RealmSwift
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
+    @IBOutlet weak var spinner: UIActivityIndicatorView!
     @IBOutlet weak var tableView: UITableView!
     var allCars : [SXCar] = []
     
@@ -33,11 +33,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 // MARK: - Data handling
     
     func loadCars(){
+        spinner.startAnimating()
         NetworkManager.sharedInstance.getCars(
             completionHandler: { (response, error) in
                 if (error == nil){
                     DispatchQueue.main.async() {
-                        self.saveCars(dataArray: response!)
+                        self.spinner.stopAnimating()
+                        self.saveCars(arrays: response!)
                     }
                 } else {
                     AlertManager.sharedInstance.showAlert(message: Constants.AlertMessages.NoInternetConnection)
@@ -45,11 +47,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         })
     }
     
-    func saveCars(dataArray: NSArray){
-        for item in dataArray{
+    func saveCars(arrays: [[String: Any]]){
+        for item in arrays{
             let car = SXCar()
-            car.initWithDictionary(dict: item as! NSDictionary)
-            allCars.append(car)
+            do {
+                try car.initWithDictionary(dict: item)
+                allCars.append(car)
+            } catch let error {
+                print(error)
+            }
         }
         tableView.reloadData()
     }
@@ -78,7 +84,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         return Constants.LabelText.TableSectionTitle
     }
     
-// MARK: UITableViewDelegate
+// MARK: - UITableViewDelegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let storyBoard = UIStoryboard(name: "Map", bundle: nil)

@@ -9,6 +9,10 @@
 import Foundation
 import CoreLocation
 
+enum SerializationError: Error{
+    case missing(String)
+}
+
 class SXCar: NSObject {
     var uuID = NSUUID().uuidString
     var id = ""
@@ -28,20 +32,37 @@ class SXCar: NSObject {
     
 //MARK: - Initializers
     
-    func initWithDictionary(dict: NSDictionary){
-        
-        self.id = dict.object(forKey: "id") as! String
-        self.modelIdentifier = dict.object(forKey: "modelIdentifier") as! String
-        self.modelName = dict.object(forKey: "modelName") as! String
-        self.make = dict.object(forKey: "make") as! String
-        self.name = dict.object(forKey: "name") as! String
-        self.group = dict.object(forKey: "group") as! String
-        self.color = dict.object(forKey: "color") as! String
-        self.series = dict.object(forKey: "series") as! String
-        self.fuelType = dict.object(forKey: "fuelType") as! String
-        self.transmission = dict.object(forKey: "transmission") as! String
-        self.licensePlate = dict.object(forKey: "licensePlate") as! String
-        self.location = CLLocation.init(latitude: dict.object(forKey: "latitude") as! CLLocationDegrees, longitude: dict.object(forKey: "longitude") as! CLLocationDegrees)
-        self.innerCleanliness = dict.object(forKey: "innerCleanliness") as! String
+    func initWithDictionary(dict: [String: Any]) throws{
+        guard let sxId = dict["id"] as? String,
+            let sxModelIdentifier = dict["modelIdentifier"] as? String,
+            let sxModelName = dict["modelName"] as? String,
+            let sxMake = dict["make"] as? String,
+            let sxName = dict["name"] as? String,
+            let sxGroup = dict["group"] as? String,
+            let sxColor = dict["color"] as? String,
+            let sxSeries = dict["series"] as? String,
+            let sxFuelType = dict["fuelType"] as? String,
+            let sxTransmission = dict["transmission"] as? String,
+            let sxLicensePlate = dict["licensePlate"] as? String,
+            let sxLatitude = dict["latitude"] as? CLLocationDegrees,
+            let sxLongitude = dict["longitude"] as? CLLocationDegrees,
+            let sxInnerCleanliness = dict["innerCleanliness"] as? String else{
+                throw SerializationError.missing("Parameters")
+        }
+            
+            
+        self.id = sxId
+        self.modelIdentifier = sxModelIdentifier
+        self.modelName = sxModelName
+        self.make = sxMake
+        self.name = sxName
+        self.group = sxGroup
+        self.color = sxColor
+        self.series = sxSeries
+        self.fuelType = sxFuelType
+        self.transmission = sxTransmission
+        self.licensePlate = sxLicensePlate
+        self.location = CLLocation.init(latitude: sxLatitude, longitude: sxLongitude)
+        self.innerCleanliness = sxInnerCleanliness
     }
 }
